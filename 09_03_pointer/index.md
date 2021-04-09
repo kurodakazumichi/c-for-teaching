@@ -48,20 +48,20 @@ C言語で**参照渡し**という言葉が出てきた場合、動作として
 #include <stdio.h>
 
 void reset(int p) {
-	p = 0;
+  p = 0;
 }
 
 int main(void)
 {
-    // ①変数を10で初期化
-	int a = 10;
+  // ①変数を10で初期化
+  int a = 10;
 
-    // ①関数実行
-	reset(a);
+  // ①関数実行
+  reset(a);
 	
-    // ③aの値を表示
-	printf("%d", a); // 10と表示される
-	return 0;
+  // ③aの値を表示
+  printf("%d", a); // 10と表示される
+  return 0;
 }
 ```
 
@@ -98,7 +98,7 @@ reset(a);
 
 ```c
 void reset(int p) {
-	p = 0;
+  p = 0;
 }
 ```
 
@@ -124,7 +124,7 @@ reset(a);
 
 ```c
 void reset(int p) {
-	p = 0;
+  p = 0;
 }
 ```
 
@@ -181,20 +181,20 @@ printf("%d", a); // 10と表示される
 #include <stdio.h>
 
 void reset(int* p) {
-	*p = 0;
+  *p = 0;
 }
 
 int main(void)
 {
-    // ①変数を10で初期化
-	int a = 10;
+  // ①変数を10で初期化
+  int a = 10;
 
-    // ①関数実行
-	reset(&a);
+  // ①関数実行
+  reset(&a);
 	
-    // ③aの値を表示
-	printf("%d", a); // 0と表示される
-	return 0;
+  // ③aの値を表示
+  printf("%d", a); // 0と表示される
+  return 0;
 }
 ```
 
@@ -236,7 +236,7 @@ reset(&a);
 
 ```c
 void reset(int* p) {
-	*p = 0;
+  *p = 0;
 }
 ```
 
@@ -285,22 +285,22 @@ printf("%d", a); // 0と表示される
 #include <stdio.h>
 
 void reset(int* p) {
-	*p = 0;
+  *p = 0;
 }
 
 int main(void)
 {
-    // ①変数を10で初期化
-	int a = 10;
-    int* p = &a;
+  // ①変数を10で初期化
+  int a = 10;
+  int* p = &a;
 
-    // ①関数実行
-	reset(&a); // A.アドレスを渡してる
-    reset(p);  // B.ポインタを渡してる
+  // ①関数実行
+  reset(&a); // A.アドレスを渡してる
+  reset(p);  // B.ポインタを渡してる
 	
-    // ③aの値を表示
-	printf("%d", a); // 0と表示される
-	return 0;
+  // ③aの値を表示
+  printf("%d", a); // 0と表示される
+  return 0;
 }
 ```
 
@@ -313,8 +313,6 @@ int main(void)
 ## まとめ
 
 今回は**値渡し**と**ポインタ渡し**についてメモリに言及した解説をしてみました。
-
-
 
 また、巷では**ポインタ渡し**という言葉はあまり聞かないかもしれませんが、**参照**とか**参照渡し**という言葉はなじみ深いとも思います。
 
@@ -353,13 +351,13 @@ void reset(int p) {
 
 int main(void)
 {
-	int a = 10;
+  int a = 10;
 
-    // アドレスといってもただの数値なので、int型に渡す事は可能
-	reset(&a);
+  // アドレスといってもただの数値なので、int型に渡す事は可能
+  reset(&a);
 	
-	printf("%d", a);
-	return 0;
+  printf("%d", a);
+  return 0;
 }
 ```
 
