@@ -1,5 +1,6 @@
 ﻿//-----------------------------------------------------------------------------
-// 入力を受け取って処理を振り分けるシンプルなテクニック v1
+// 入力を受け取って処理を振り分けるシンプルなテクニック v2
+// 配列や構造体、関数ポインタをうまくつかってメニュー表示や処理の振り分けをシンプル化
 //-----------------------------------------------------------------------------
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
@@ -15,6 +16,28 @@ void test1(void);
 void test2(void);
 void test3(void);
 
+//-----------------------------------------------------------------------------
+// タイトルとメインの処理を格納できるメニュー構造体を定義
+struct Menu 
+{
+  // メニューのタイトル
+  char* title;
+
+  // メニューが選ばれた時に実行する関数のポインタ
+  void (*func)(void);
+};
+
+//-----------------------------------------------------------------------------
+// メニューリストと、メニューの個数を定義
+
+struct Menu gMenus[] = {
+  { "テスト1", test1 },
+  { "テスト2", test2 },
+  { "テスト3", test3 }
+};
+
+const int gMenuSize = sizeof(gMenus) / sizeof(struct Menu);
+
 // エントリーポイント(プログラムの入り口)
 int main(void)
 {
@@ -28,25 +51,20 @@ int main(void)
   {
     printf("----------------------------------------------------------\n");
     printf("メニュー番号を入力しEnterを押してください。\n");
-    printf("1:テスト1\n");
-    printf("2:テスト2\n");
-    printf("3:テスト3\n");
+    for (int i = 0; i < gMenuSize; ++i) {
+      printf("%d:%s\n", i, gMenus[i].title);
+    }
 
     scanf("%d", &selectedMenuNo);
 
     // 余白を空けたいので改行
     printf("\n");
 
-    switch (selectedMenuNo)
-    {
-      // 選択された番号によって呼ぶ処理を変える。
-    case 1: test1(); break;
-    case 2: test2(); break;
-    case 3: test3(); break;
+    // 選ばれたメニュー番号が配列の範囲外であれば終了
+    if (selectedMenuNo < 0 || gMenuSize <= selectedMenuNo) break;
 
-      // 想定外の内容だったらループを終了する
-    default: isLoop = 0; break;
-    }
+    // メニューの処理を実行
+    gMenus[selectedMenuNo].func();
 
     // 余白を空けたいので改行
     printf("\n");
