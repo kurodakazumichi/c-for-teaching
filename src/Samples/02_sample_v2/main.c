@@ -42,11 +42,12 @@ typedef enum {
 /// <summary>
 /// 勝敗のパターンを定義(定数リスト)
 /// </summary>
-typedef enum {
-	E_RESULT_NONE = -1, // なし
-	E_RESULT_WIN,       // 勝ち
-	E_RESULT_LOSE,      // 負け
-	E_RESULT_DRAW,      // あいこ
+typedef enum 
+{
+	E_RESULT_UNKNOWN = -1, // なし
+	E_RESULT_WIN,          // 勝ち
+	E_RESULT_LOSE,         // 負け
+	E_RESULT_DRAW,         // あいこ
 } RESULT;
 
 //-----------------------------------------------------------------------------
@@ -186,6 +187,9 @@ enum Result getResult(HAND player, HAND cpuHand)
 		// CPUがチョキならプレイヤーの負け
 		if (cpuHand == E_HAND_T) return E_RESULT_LOSE;
 	}
+
+	// 勝敗不明
+	return E_RESULT_UNKNOWN;
 }
 
 // じゃんけんの手を表示
