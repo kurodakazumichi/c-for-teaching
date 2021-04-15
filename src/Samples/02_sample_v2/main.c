@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// じゃんけんゲーム v1
+// じゃんけんゲーム v2 (enumの活用)
 // ゲームの基本は入力を受け取り、入力を元に演算をし、その結果を表示すること
 //
 // 1. プレイヤーの入力を受け取る
@@ -18,23 +18,54 @@
 // 放置してもいいが、警告出てるのも気になるので今回は無視することにした。
 #pragma warning (disable: 6031)
 
+/// <summary>
+/// TRUE、FALSEを定義
+/// </summary>
+typedef enum {
+	FALSE = 0,
+	TRUE = 1,
+} BOOL;
+
+/// <summary>
+/// じゃんけんの手(グー、チョキ、パー)を定義(定数リスト)
+/// </summary>
+typedef enum {
+	E_HAND_UNKNOWN = -1, // 不明(列挙型の先頭)
+
+	E_HAND_G, // グー
+	E_HAND_T, // チョキ
+	E_HAND_P, // パー
+
+	E_HAND_COUNT,    // 列挙型の最後の要素(チェック用)
+} HAND;
+
+/// <summary>
+/// 勝敗のパターンを定義(定数リスト)
+/// </summary>
+typedef enum {
+	E_RESULT_NONE = -1, // なし
+	E_RESULT_WIN,       // 勝ち
+	E_RESULT_LOSE,      // 負け
+	E_RESULT_DRAW,      // あいこ
+} RESULT;
+
 //-----------------------------------------------------------------------------
 // 関数プロトタイプ宣言
 
 // じゃんけんの手が正しいかチェックする関数
-int isRightHand(int type);
+BOOL isRightHand(HAND type);
 
 // ランダムでじゃんけんの手を取得する関数
-int getRandomHand(void);
+HAND getRandomHand(void);
 
 // じゃんけんの勝敗を判定する関数
-int getResult(int playerHand, int cpuHand);
+int getResult(HAND player, HAND cpu);
 
 // じゃんけんの手を表示
-void showHand(char* prefix, int type);
+void showHand(char* prefix, HAND type);
 
 // じゃんけんの勝敗を表示する関数
-void showResult(int result);
+void showResult(RESULT type);
 
 // 改行するだけの関数
 void breakLine();
@@ -109,72 +140,71 @@ int main(void)
 	return 0;
 }
 
+
 // 引数に渡されたじゃんけんの手が正しいかどうか(グー、チョキ、パーか？)をチェックする関数
-// 正しければ1を、正しくなければ0を返す。
-int isRightHand(int type)
+BOOL isRightHand(HAND type)
 {
-	// typeが0～2だったら正しい
-	return (0 <= type && type <= 2) ? 1 : 0;
+	// 列挙型の定義を使ってじゃんけんの手が正しいか判定する
+	// UNKNOWN < type < E_HAND_ENDであればグー、チョキ、パーのいずれかになる
+	return (E_HAND_UNKNOWN < type && type < E_HAND_COUNT) ? TRUE : FALSE;
 }
 
 // じゃんけんの手をランダムで取得する
-int getRandomHand(void) {
-	// 3で割った余りは0～2になる
-	return rand() % 3;
+HAND getRandomHand(void) 
+{
+	// E_HAND_ENDはじゃんけん手数を表す。
+	return rand() % E_HAND_COUNT;
 }
 
 // プレイヤーとコンピュータの手から勝敗を判定し、結果を返す。
-// 0: プレイヤーの負け
-// 1: プレイヤーの勝ち
-// 2: あいこ
-int getResult(int playerHand, int cpuHand)
+enum Result getResult(HAND player, HAND cpuHand)
 {
 	// 手が同じならあいこ
-	if (playerHand == cpuHand) return 2;
+	if (player == cpuHand) return E_RESULT_DRAW;
 
 	// プレイヤーがグーの場合
-	if (playerHand == 0)
+	if (player == E_HAND_G)
 	{
 		// CPUがチョキならプレイヤーの勝ち
-		if (cpuHand == 1) return 1;
+		if (cpuHand == E_HAND_T) return E_RESULT_WIN;
 		// CPUがパーならプレイヤーの負け
-		if (cpuHand == 2) return 0;
+		if (cpuHand == E_HAND_P) return E_RESULT_LOSE;
 	}
 
 	// プレイヤーがチョキの場合
-	if (playerHand == 1) {
+	if (player == E_HAND_T) {
 		// CPUがグーならプレイヤーの負け
-		if (cpuHand == 0) return 0;
+		if (cpuHand == E_HAND_G) return E_RESULT_LOSE;
 		// CPUがパーならプレイヤーの勝ち
-		if (cpuHand == 2) return 1;
+		if (cpuHand == E_HAND_P) return E_RESULT_WIN;
 	}
 
 	// プレイヤーがパーの場合
-	if (playerHand == 2) {
+	if (player == E_HAND_P) {
 		// CPUがグーならプレイヤーの勝ち
-		if (cpuHand == 0) return 1;
+		if (cpuHand == E_HAND_G) return E_RESULT_WIN;
 		// CPUがチョキならプレイヤーの負け
-		if (cpuHand == 1) return 0;
+		if (cpuHand == E_HAND_T) return E_RESULT_LOSE;
 	}
 }
 
 // じゃんけんの手を表示
-void showHand(char* prefix, int type) 
+void showHand(char* prefix, HAND type)
 {
 	switch (type) {
-		case 0: printf("%s:%s\n", prefix, "グー"); break;
-		case 1: printf("%s:%s\n", prefix, "チョキ"); break;
-		case 2: printf("%s:%s\n", prefix, "パー"); break;
+		case E_HAND_G: printf("%s:%s\n", prefix, "グー"); break;
+		case E_HAND_T: printf("%s:%s\n", prefix, "チョキ"); break;
+		case E_HAND_P: printf("%s:%s\n", prefix, "パー"); break;
 	}
 }
 
 // じゃんけんの勝敗を表示する関数
-void showResult(int result)
+void showResult(RESULT type)
 {
-	switch (result) {
-		case 0: printf("あなたの負け\n"); break;
-		case 1: printf("あなたの勝ち\n"); break;
-		case 2: printf("あいこでした\n"); break;
+	switch (type) {
+		case E_RESULT_WIN: printf("あなたの勝ち\n"); break;
+		case E_RESULT_LOSE: printf("あなたの負け\n"); break;
+		case E_RESULT_DRAW: printf("あいこでした\n"); break;
 		default: printf("想定しない結果でした"); break;
 	}
 	breakLine();
