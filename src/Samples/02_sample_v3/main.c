@@ -1,12 +1,8 @@
 ﻿//-----------------------------------------------------------------------------
-// じゃんけんゲーム v2 (enumを活用し、可読性を上げる)
-// ゲームの基本は入力を受け取り、入力を元に演算をし、その結果を表示すること
+// じゃんけんゲーム v3 ゲームフローの整理と状態の分離
 //
-// 1. プレイヤーの入力を受け取る
-// 2. コンピュータの手(グー、チョキ、パー)をランダムに決める
-// 3. 勝敗判定
-// 4. 勝敗を表示
-// 5. リトライ処理
+// ゲームのフローを入力→更新→描画という流れに整理する
+// また構造体を使ってゲームの状態をまとめて管理する。
 //-----------------------------------------------------------------------------
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
@@ -42,7 +38,7 @@ typedef enum {
 /// <summary>
 /// 勝敗のパターンを定義(定数リスト)
 /// </summary>
-typedef enum 
+typedef enum
 {
 	E_RESULT_UNKNOWN = -1, // なし
 	E_RESULT_WIN,          // 勝ち
@@ -50,8 +46,35 @@ typedef enum
 	E_RESULT_DRAW,         // あいこ
 } RESULT;
 
+/// <summary>
+/// ゲームの状態を格納する構造体を定義
+/// </summary>
+typedef struct {
+	BOOL inGame;   // ゲーム中はTRUE、ゲームを終了する場合にFALSEを設定
+	HAND player;   // プレイヤーのじゃんけんの手
+	HAND cpu;      // CPUのじゃんけんの手
+	RESULT result; // 勝敗
+} State;
+
+/// <summary>
+/// ゲームの状態を保持する変数を定義
+/// </summary>
+State gState;
+
 //-----------------------------------------------------------------------------
 // 関数プロトタイプ宣言
+
+// 入力の処理
+void input(void);
+
+// 更新
+void update(void);
+
+// 描画
+void draw(void);
+
+// 状態をリセット
+void ResetState(State* state);
 
 // じゃんけんの手が正しいかチェックする関数
 BOOL isRightHand(int maybeHand);
@@ -83,57 +106,23 @@ int main(void)
 	srand((unsigned int)time(NULL));
 
 	printf("----------------------------------------------------------\n");
-	printf("じゃんけんゲーム v2\n");
+	printf("じゃんけんゲーム v3\n");
 	printf("----------------------------------------------------------\n");
 
 	// ゲームループ
 	while (TRUE)
 	{
-		printf("何を出しますか？\n");
-		printf("%d:グー\n"  , E_HAND_G);
-		printf("%d:チョキ\n", E_HAND_T);
-		printf("%d:パー\n"  , E_HAND_P);
+		// 入力
+		input();
 
-		// 1. プレイヤーの入力
-		// プレイヤーのじゃんけんの手(0:グー、1:チョキ、2:パー)とする
-		int playerHand = 0;
-		scanf("%d", &playerHand);
-		breakLine();
+		// ゲーム終了ならループを抜ける
+		if (gState.inGame == FALSE) break;
 
-		// 入力内容が正しいかどうかをチェック
-		if (!isRightHand(playerHand)) {
-			printf("グー、チョキ、パーから選んでください。\n");
-			continue;
-		}
+		// 更新
+		update();
 
-		// 2. コンピューターの手を決める
-		int cpuHand = getRandomHand();
-
-		// 3. 勝敗判定
-		int result = getResult(playerHand, cpuHand);
-
-		// 4. 結果を表示
-		showHand("あなた", playerHand);
-		showHand("相手　", cpuHand);
-		showResult(result);
-
-		// リトライ？
-		printf("もう一度勝負しますか？\n");
-		printf("0: いいえ\n");
-		printf("1: はい\n");
-
-		// 入力番号を受け取る
-		int no = 0;
-		scanf("%d", &no);
-		breakLine();
-
-		// はいが選ばれたらまたループの最初へ戻る
-		if (no == 1) {
-			continue;
-		}
-
-		// はい以外が選ばれていたらループ終了
-		break;
+		// 描画
+		draw();
 	}
 
 	printf("ゲームを終了しました。");
@@ -141,17 +130,96 @@ int main(void)
 	return 0;
 }
 
+/// プレイヤーの入力を受け取り、gStateに格納する。
+void input(void)
+{
+	// 最初にゲームの状態をリセットしておく
+	ResetState(&gState);
+
+	// 入力内容が確定するまでループする
+	while (TRUE)
+	{
+		printf("コマンドを入力してください\n");
+		printf("%d:グー\n", E_HAND_G);
+		printf("%d:チョキ\n", E_HAND_T);
+		printf("%d:パー\n", E_HAND_P);
+		breakLine();
+		printf("9:終了する\n");
+
+		// 入力内容を受け取る
+		int input = 0;
+		scanf("%d", &input);
+		breakLine();
+
+		// 9が入力されていたら状態のinGameをFALSEにして終了
+		if (input == 9) {
+			gState.inGame = FALSE;
+			break;
+		}
+
+		// 9以外が入力されていたら、じゃんけんの手として正しいかチェックし
+		if (isRightHand(input)) {
+			gState.player = input;
+			break;
+		}
+		else {
+			printf("グー、チョキ、パーから選んでください。\n\n");
+		}
+	}
+}
+
+/// ゲームの更新
+/// CPUのじゃんけんの内容を決定し、勝敗判定を行う。
+/// 結果表示に必要な情報をgStateに書き込む。
+void update(void)
+{
+	// コンピューターの手を決める(gStateに格納)
+	gState.cpu = getRandomHand();
+
+	// 勝敗結果を格納
+	gState.result = getResult(gState.player, gState.cpu);
+}
+
+/// <summary>
+/// 描画(ゲームの状態を表示)
+/// </summary>
+void draw(void)
+{
+	// 結果を表示
+	printf("********************\n");
+	showHand("あなた", gState.player);
+	showHand("相手　", gState.cpu);
+	printf("--------------------\n");
+	showResult(gState.result);
+	printf("********************\n");
+	breakLine();
+}
+
+/// <summary>
+/// ゲームの状態をリセット
+/// </summary>
+void ResetState(State* state) 
+{
+	// ポインタがNULLだったら何もしない
+	if (state == NULL) return;
+
+	// 内容をリセット
+	state->inGame = TRUE;
+	state->player = E_HAND_UNKNOWN;
+	state->cpu    = E_HAND_UNKNOWN;
+	state->result = E_RESULT_UNKNOWN;
+}
 
 // 引数に渡されたじゃんけんの手が正しいかどうか(グー、チョキ、パーか？)をチェックする関数
 BOOL isRightHand(int maybeHand)
 {
 	// 列挙型の定義を使ってじゃんけんの手が正しいか判定する
 	// UNKNOWN < type < E_HAND_ENDであればグー、チョキ、パーのいずれかになる
-	return (E_HAND_UNKNOWN < maybeHand&& maybeHand < E_HAND_COUNT) ? TRUE : FALSE;
+	return (E_HAND_UNKNOWN < maybeHand && maybeHand < E_HAND_COUNT) ? TRUE : FALSE;
 }
 
 // じゃんけんの手をランダムで取得する
-HAND getRandomHand(void) 
+HAND getRandomHand(void)
 {
 	// E_HAND_ENDはじゃんけん手数を表す。
 	return rand() % E_HAND_COUNT;
@@ -196,9 +264,9 @@ enum Result getResult(HAND player, HAND cpuHand)
 void showHand(char* prefix, HAND type)
 {
 	switch (type) {
-		case E_HAND_G: printf("%s:%s\n", prefix, "グー"); break;
-		case E_HAND_T: printf("%s:%s\n", prefix, "チョキ"); break;
-		case E_HAND_P: printf("%s:%s\n", prefix, "パー"); break;
+	case E_HAND_G: printf("%s:%s\n", prefix, "グー"); break;
+	case E_HAND_T: printf("%s:%s\n", prefix, "チョキ"); break;
+	case E_HAND_P: printf("%s:%s\n", prefix, "パー"); break;
 	}
 }
 
@@ -206,12 +274,11 @@ void showHand(char* prefix, HAND type)
 void showResult(RESULT type)
 {
 	switch (type) {
-		case E_RESULT_WIN: printf("あなたの勝ち\n"); break;
-		case E_RESULT_LOSE: printf("あなたの負け\n"); break;
-		case E_RESULT_DRAW: printf("あいこでした\n"); break;
-		default: printf("想定しない結果でした"); break;
+	case E_RESULT_WIN: printf("あなたの勝ち\n"); break;
+	case E_RESULT_LOSE: printf("あなたの負け\n"); break;
+	case E_RESULT_DRAW: printf("あいこでした\n"); break;
+	default: printf("想定しない結果でした"); break;
 	}
-	breakLine();
 }
 
 // 改行するだけの処理
