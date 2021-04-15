@@ -1,46 +1,46 @@
-#pragma once
+ï»¿#pragma once
 //-----------------------------------------------------------------------------
 // State.h
 //
-// ƒQ[ƒ€‚Ìó‘Ô‚ğ•Û‚µ‚Ä‚¢‚éState\‘¢‘Ì‚ÉŠÖ‚·‚ééŒ¾
+// ã‚²ãƒ¼ãƒ ã®çŠ¶æ…‹ã‚’ä¿æŒã—ã¦ã„ã‚‹Stateæ§‹é€ ä½“ã«é–¢ã™ã‚‹å®£è¨€
 //-----------------------------------------------------------------------------
 #include "common.h"
 
-// ƒwƒbƒ_‚Å‚Í_State‚Æ‚¢‚¤\‘¢‘Ì‚ª‚ ‚é‚æ‚Æ‚¢‚¤–‚ğ’è‹`‚·‚é‚Ì‚İB
-// ’†g‚ÉŠÖ‚·‚éî•ñ‚ğ’è‹`‚µ‚Ä‚¢‚È‚¢‚Ì‚ÅAÀÛ‚Ég‚¤‚Æ‚«‚Í
-// struct _State* state;‚Ì‚æ‚¤‚Éƒ|ƒCƒ“ƒ^‚Åg‚¤‚±‚Æ‚É‚È‚éB
+// ãƒ˜ãƒƒãƒ€ã§ã¯_Stateã¨ã„ã†æ§‹é€ ä½“ãŒã‚ã‚‹ã‚ˆã¨ã„ã†äº‹ã‚’å®šç¾©ã™ã‚‹ã®ã¿ã€‚
+// ä¸­èº«ã«é–¢ã™ã‚‹æƒ…å ±ã‚’å®šç¾©ã—ã¦ã„ãªã„ã®ã§ã€å®Ÿéš›ã«ä½¿ã†ã¨ãã¯
+// struct _State* state;ã®ã‚ˆã†ã«ãƒã‚¤ãƒ³ã‚¿ã§ä½¿ã†ã“ã¨ã«ãªã‚‹ã€‚
 struct _State;
 
-// struct‚Ì’è‹`‚¾‚Æ•Ï”’è‹`‚·‚éÛ‚É‚¢‚¿‚¢‚¿
-// struct _State* state; ‚Æ‘‚©‚È‚¢‚Æ‚¢‚¯‚È‚¢‚ª
-// struct _State ‚ğ State ‚Æ‚¢‚¤–¼‘O‚Å’è‹`‚µ‚Ä‚¨‚­(•Ê–¼’è‹`‚Æ‚à‚¢‚¤)‚Æ
-// State* state; ‚Æ‘‚¯‚é‚æ‚¤‚É‚È‚é‚Ì‚Åtypedef‚µ‚Ä‚¢‚éB
+// structã®å®šç¾©ã ã¨å¤‰æ•°å®šç¾©ã™ã‚‹éš›ã«ã„ã¡ã„ã¡
+// struct _State* state; ã¨æ›¸ã‹ãªã„ã¨ã„ã‘ãªã„ãŒ
+// struct _State ã‚’ State ã¨ã„ã†åå‰ã§å®šç¾©ã—ã¦ãŠã(åˆ¥åå®šç¾©ã¨ã‚‚ã„ã†)ã¨
+// State* state; ã¨æ›¸ã‘ã‚‹ã‚ˆã†ã«ãªã‚‹ã®ã§typedefã—ã¦ã„ã‚‹ã€‚
 typedef struct _State State;
 
 //-----------------------------------------------------------------------------
-// State‚ğˆµ‚¤‚½‚ß‚ÌŠÖ”ƒvƒƒgƒ^ƒCƒvéŒ¾
+// Stateã‚’æ‰±ã†ãŸã‚ã®é–¢æ•°ãƒ—ãƒ­ãƒˆã‚¿ã‚¤ãƒ—å®£è¨€
 
-// State\‘¢‘Ì‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚ğ¶¬‚µ‚Ä•Ô‚·
+// Stateæ§‹é€ ä½“ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’ç”Ÿæˆã—ã¦è¿”ã™
 State* State_makeInstance(void);
 
-// State\‘¢‘ÌƒCƒ“ƒXƒ^ƒ“ƒX‚ğ‰ğ•ú‚·‚é
+// Stateæ§‹é€ ä½“ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’è§£æ”¾ã™ã‚‹
 void State_freeInstance(State* this);
 
-// State\‘¢‘Ì‚Ìƒƒ“ƒo‚ğƒŠƒZƒbƒg‚·‚é
+// Stateæ§‹é€ ä½“ã®ãƒ¡ãƒ³ãƒã‚’ãƒªã‚»ãƒƒãƒˆã™ã‚‹
 void State_reset(State* this);
 
-// State.inGame‚ÌƒAƒNƒZƒbƒT
+// State.inGameã®ã‚¢ã‚¯ã‚»ãƒƒã‚µ
 BOOL State_getInGame(State* this);
 void State_setInGame(State* this, BOOL value);
 
-// State.player‚ÌƒAƒNƒZƒbƒT
+// State.playerã®ã‚¢ã‚¯ã‚»ãƒƒã‚µ
 HAND State_getPlayer(State* this);
 void State_setPlayer(State* this, HAND value);
 
-// State.cpu‚ÌƒAƒNƒZƒbƒT
+// State.cpuã®ã‚¢ã‚¯ã‚»ãƒƒã‚µ
 HAND State_getCpu(State* this);
 void State_setCpu(State* this, HAND value);
 
-// State.result‚ÌƒAƒNƒZƒbƒT
+// State.resultã®ã‚¢ã‚¯ã‚»ãƒƒã‚µ
 RESULT State_getResult(State* this);
-void State_setResult(State* this, HAND value);
+void State_setResult(State* this, RESULT value);
