@@ -1,14 +1,16 @@
 ﻿//-----------------------------------------------------------------------------
 // じゃんけんゲーム v4 enumの定義を別ファイルへ分離
 //
-// プログラムの規模も大きくなってきたので、ファイルを分割していく。
-// まずはenumの定義や、enumに関する関数ををcommon.h/cに分離します。
+// ゲームの状態を保持しているStateを別ファイルに分離します。
+// また現状はState構造体の中身に直接アクセス可能ですが
+// アクセスするための専用の関数を経由しないとアクセスできないようにもしていきます。
 //-----------------------------------------------------------------------------
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include "common.h"
+#include "State.h"
 
 // コンパイラにC6031の警告を無視するように伝えるプリプロセッサ
 // scanfには戻り値があるが、特に戻り値を使っていないためC6031の警告がでる。
@@ -16,19 +18,9 @@
 #pragma warning (disable: 6031)
 
 /// <summary>
-/// ゲームの状態を格納する構造体を定義
+/// ゲームの状態を保持すグローバル変数(ポインタ)を定義
 /// </summary>
-typedef struct {
-	BOOL inGame;   // ゲーム中はTRUE、ゲームを終了する場合にFALSEを設定
-	HAND player;   // プレイヤーのじゃんけんの手
-	HAND cpu;      // CPUのじゃんけんの手
-	RESULT result; // 勝敗
-} State;
-
-/// <summary>
-/// ゲームの状態を保持する変数を定義
-/// </summary>
-State gState;
+State* gState = NULL;
 
 //-----------------------------------------------------------------------------
 // 関数プロトタイプ宣言
@@ -42,12 +34,12 @@ void update(void);
 // 描画
 void draw(void);
 
-// 状態をリセット
-void ResetState(State* state);
-
 // エントリーポイント(プログラムの入り口)
 int main(void)
 {
+	// ゲームの状態を管理するStateを作成(動的にメモリを確保しているので最後に解放すること)
+	gState = State_makeInstance();
+
 	// ゲームの初期化
 	// コンピューターの乱数(ランダムな数)は疑似乱数といって、本当のランダムではない。
 	// ランダムシートと呼ばれる、乱数の種を決める事で、その種を基準にランダムっぽい数を生成している。
@@ -57,7 +49,7 @@ int main(void)
 	srand((unsigned int)time(NULL));
 
 	printf("----------------------------------------------------------\n");
-	printf("じゃんけんゲーム v4\n");
+	printf("じゃんけんゲーム v5\n");
 	printf("----------------------------------------------------------\n");
 
 	// ゲームループ
@@ -67,7 +59,7 @@ int main(void)
 		input();
 
 		// ゲーム終了ならループを抜ける
-		if (gState.inGame == FALSE) break;
+		if (State_getInGame(gState) == FALSE) break;
 
 		// 更新
 		update();
@@ -78,6 +70,10 @@ int main(void)
 
 	printf("ゲームを終了しました。");
 
+	// メモリを解放
+	State_freeInstance(gState);
+	gState = NULL;
+
 	return 0;
 }
 
@@ -85,7 +81,7 @@ int main(void)
 void input(void)
 {
 	// 最初にゲームの状態をリセットしておく
-	ResetState(&gState);
+	State_reset(gState);
 
 	// 入力内容が確定するまでループする
 	while (TRUE)
@@ -104,13 +100,13 @@ void input(void)
 
 		// 9が入力されていたら状態のinGameをFALSEにして終了
 		if (input == 9) {
-			gState.inGame = FALSE;
+			State_setInGame(gState, FALSE);
 			break;
 		}
 
 		// 9以外が入力されていたら、じゃんけんの手として正しいかチェックし
 		if (isRightHand(input)) {
-			gState.player = input;
+			State_setPlayer(gState, input);
 			break;
 		}
 		else {
@@ -125,10 +121,10 @@ void input(void)
 void update(void)
 {
 	// コンピューターの手を決める(gStateに格納)
-	gState.cpu = getRandomHand();
+	State_setCpu(gState, getRandomHand());
 
 	// 勝敗結果を格納
-	gState.result = getResult(gState.player, gState.cpu);
+	State_setResult(gState, getResult(State_getPlayer(gState), State_getCpu(gState)));
 }
 
 /// <summary>
@@ -138,25 +134,10 @@ void draw(void)
 {
 	// 結果を表示
 	printf("********************\n");
-	showHand("あなた", gState.player);
-	showHand("相手　", gState.cpu);
+	showHand("あなた", State_getPlayer(gState));
+	showHand("相手　", State_getCpu(gState));
 	printf("--------------------\n");
-	showResult(gState.result);
+	showResult(State_getResult(gState));
 	printf("********************\n");
 	breakLine();
-}
-
-/// <summary>
-/// ゲームの状態をリセット
-/// </summary>
-void ResetState(State* state)
-{
-	// ポインタがNULLだったら何もしない
-	if (state == NULL) return;
-
-	// 内容をリセット
-	state->inGame = TRUE;
-	state->player = E_HAND_UNKNOWN;
-	state->cpu = E_HAND_UNKNOWN;
-	state->result = E_RESULT_UNKNOWN;
 }

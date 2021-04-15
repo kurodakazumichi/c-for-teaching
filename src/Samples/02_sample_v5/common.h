@@ -9,7 +9,7 @@
 /// </summary>
 typedef enum {
 	FALSE = 0,
-	TRUE  = 1,
+	TRUE = 1,
 } BOOL;
 
 /// <summary>
