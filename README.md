@@ -10,7 +10,7 @@ root
 ┣ docs ... C言語に関する資料
 ┣ src
 ┃ ┣ Samples ... c言語のサンプルコード
-┃ ┗ Challenges ... デバッグチャレンジ
+┃ ┗ Bugs ... デバッグチャレンジ
 ┗ README.md ...このファイル
 ```
 
@@ -48,7 +48,7 @@ root
 
 
 
-### src/Challenges
+### src/Bugs
 
 このフォルダにはあえてバグのあるコード集が格納されている予定です。(まだない)
 
