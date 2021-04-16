@@ -45,7 +45,6 @@ int atoi(char* str)
 {
 	int num  = 0; // 最終的な数値
 	int len  = 0; // strの長さ
-	int rank = 0; // 数の位、1なら1の位、2なら10の位
 
 	// strの長さを調べる(数字の桁数)
 	for (int i = 0; str[i] != '\0'; ++i) {
@@ -58,6 +57,7 @@ int atoi(char* str)
 	// 10*2 = 20
 	// 100 * 1 = 100
 	// 全て足すと123
+	// rankは数の位を表し、1の位なら1、10の位なら10が入る変数
 	for (int i = len - 1, rank = 1; 0 <= i; --i) 
 	{
 		int n = ctoi(str[i]);
